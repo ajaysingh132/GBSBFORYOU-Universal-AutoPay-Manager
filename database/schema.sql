@@ -1,4 +1,7 @@
--- Supabase/PostgreSQL starter schema. Never store payment secrets.
+-- GBSBFORYOU AutoPay Manager: user-owned recurring payment records.
+-- Tables created in public are NOT auto-exposed in current Supabase projects.
+-- Explicit grants below expose only this RLS-protected table to authenticated users.
+
 create table if not exists public.recurring_payments (
  id uuid primary key default gen_random_uuid(),
  user_id uuid not null references auth.users(id) on delete cascade,
@@ -15,9 +18,30 @@ create table if not exists public.recurring_payments (
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
 );
+
 alter table public.recurring_payments enable row level security;
-create policy "Users read own payments" on public.recurring_payments for select using (auth.uid() = user_id);
-create policy "Users insert own payments" on public.recurring_payments for insert with check (auth.uid() = user_id);
-create policy "Users update own payments" on public.recurring_payments for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "Users delete own payments" on public.recurring_payments for delete using (auth.uid() = user_id);
--- Never add columns for UPI PIN, OTP, CVV, full card number or bank passwords.
+
+drop policy if exists "Users read own payments" on public.recurring_payments;
+drop policy if exists "Users insert own payments" on public.recurring_payments;
+drop policy if exists "Users update own payments" on public.recurring_payments;
+drop policy if exists "Users delete own payments" on public.recurring_payments;
+
+create policy "Users read own payments" on public.recurring_payments
+ for select to authenticated using ((select auth.uid()) = user_id);
+create policy "Users insert own payments" on public.recurring_payments
+ for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "Users update own payments" on public.recurring_payments
+ for update to authenticated using ((select auth.uid()) = user_id)
+ with check ((select auth.uid()) = user_id);
+create policy "Users delete own payments" on public.recurring_payments
+ for delete to authenticated using ((select auth.uid()) = user_id);
+
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.recurring_payments to authenticated;
+revoke all on public.recurring_payments from anon;
+
+create index if not exists recurring_payments_user_created_idx
+ on public.recurring_payments(user_id, created_at desc);
+
+comment on table public.recurring_payments is
+ 'User-managed recurring payment metadata only. Never store UPI PIN, OTP, CVV, full card numbers or banking passwords.';
