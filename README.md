@@ -21,6 +21,18 @@ npm install
 npm run dev
 ```
 
+## Supabase Auth + cloud sync (Phase 2)
+
+The app now supports Supabase email/password sign-up, sign-in, sign-out and per-user cloud records.
+
+1. Apply `supabase/migrations/20261105000100_create_recurring_payments.sql` in the Supabase SQL Editor.
+2. Copy `.env.example` to `.env.local`.
+3. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` using the project's URL and publishable key.
+4. Add the local/deployed app origin to Supabase Auth redirect URL allow-list.
+5. Configure SMTP/email confirmation for production account verification.
+
+If Supabase variables are missing, the UI stays in local demo mode. The frontend must only receive the publishable key; never use a secret/service-role key in VITE_ variables.
+
 ## Backend starter
 ```bash
 cd backend
