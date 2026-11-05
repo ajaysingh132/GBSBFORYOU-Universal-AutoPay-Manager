@@ -35,8 +35,8 @@ jobs:
       - name: Build Vite app
         run: npm run build -- --base=/GBSBFORYOU-Universal-AutoPay-Manager/
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://abrxjejsdckafoxnjvcb.supabase.co' }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_zmn9WEC9GU-ON5zJWPV_Pw_eV-bHaIy' }}
 
       - name: Add .nojekyll
         run: touch dist/.nojekyll
